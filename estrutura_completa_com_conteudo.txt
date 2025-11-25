@@ -1,0 +1,3183 @@
+./src/client/java/com/example/ExampleModClient.java
+
+==============================
+FILE: ./src/client/java/com/example/ExampleModClient.java
+==============================
+package com.example;
+
+import net.fabricmc.api.ClientModInitializer;
+
+public class ExampleModClient implements ClientModInitializer {
+	@Override
+	public void onInitializeClient() {
+		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
+	}
+}
+
+./src/client/java/com/example/mixin/client/ExampleClientMixin.java
+
+==============================
+FILE: ./src/client/java/com/example/mixin/client/ExampleClientMixin.java
+==============================
+package com.example.mixin.client;
+
+import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(Minecraft.class)
+public class ExampleClientMixin {
+	@Inject(at = @At("HEAD"), method = "run")
+	private void init(CallbackInfo info) {
+		// This code is injected into the start of Minecraft.run()V
+	}
+}
+
+./src/client/resources/modid.client.mixins.json
+
+==============================
+FILE: ./src/client/resources/modid.client.mixins.json
+==============================
+{
+	"required": true,
+	"package": "com.example.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ExampleClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
+
+./src/main/java/com/example/ExampleMod.java
+
+==============================
+FILE: ./src/main/java/com/example/ExampleMod.java
+==============================
+package com.example;
+
+import net.fabricmc.api.ModInitializer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ExampleMod implements ModInitializer {
+	public static final String MOD_ID = "modid";
+
+	// This logger is used to write text to the console and the log file.
+	// It is considered best practice to use your mod id as the logger's name.
+	// That way, it's clear which mod wrote info, warnings, and errors.
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+	@Override
+	public void onInitialize() {
+		// This code runs as soon as Minecraft is in a mod-load-ready state.
+		// However, some things (like resources) may still be uninitialized.
+		// Proceed with mild caution.
+
+		LOGGER.info("Hello Fabric world!");
+	}
+}
+
+./src/main/java/com/example/mixin/ExampleMixin.java
+
+==============================
+FILE: ./src/main/java/com/example/mixin/ExampleMixin.java
+==============================
+package com.example.mixin;
+
+import net.minecraft.server.MinecraftServer;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(MinecraftServer.class)
+public class ExampleMixin {
+	@Inject(at = @At("HEAD"), method = "loadLevel")
+	private void init(CallbackInfo info) {
+		// This code is injected into the start of MinecraftServer.loadLevel()V
+	}
+}
+
+./src/main/java/com/dragonblockinfinity/OverclockMode.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/OverclockMode.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/race/Race.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/Race.java
+==============================
+package com.dragonblockinfinity.race;
+
+public interface Race {
+
+    // Nome da raça
+    String getName();
+
+    // Ki base da raça
+    float getBaseKi();
+
+    // Stamina base da raça
+    float getBaseStamina();
+
+    // Regeneração de Ki por tick
+    float getKiRegen();
+
+    // Regeneração de Stamina por tick
+    float getStaminaRegen();
+
+    // Multiplicador natural da raça
+    float getPowerMultiplier();
+
+    // Se a raça tem ki infinito (ex: Android, Bio-Android)
+    default boolean hasInfiniteKi() {
+        return false;
+    }
+
+    // Se a raça tem stamina infinita
+    default boolean hasInfiniteStamina() {
+        return false;
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/race/android/AndroidRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/android/AndroidRace.java
+==============================
+package com.dragonblockinfinity.race.android;
+
+import com.dragonblockinfinity.race.Race;
+
+public class AndroidRace implements Race {
+
+    @Override
+    public String getName() {
+        return "Android";
+    }
+
+    @Override
+    public double getBaseKi() {
+        return Double.MAX_VALUE; // Ki infinito
+    }
+
+    @Override
+    public double getBaseStamina() {
+        return 9999999; // Stamina praticamente infinita
+    }
+
+    @Override
+    public double getHealthRegen() {
+        return 4.0; 
+        /*
+         * Regen média:
+         * Saiyan = 1.0
+         * Arcosian = 2.0
+         * Android = 4.0  <- aqui
+         * Bio Android = 7.0
+         * Majin = 10.0
+         */
+    }
+
+    @Override
+    public boolean hasKiRecovery() {
+        return false; // Não recupera ki naturalmente (como no DragonBlockC)
+    }
+
+    @Override
+    public boolean hasStaminaRecovery() {
+        return true; // Stamina infinita
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/race/bioandroid/BioAndroidRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/bioandroid/BioAndroidRace.java
+==============================
+package com.dragonblockinfinity.race.bioandroid;
+
+import com.dragonblockinfinity.race.Race;
+
+public class BioAndroidRace implements Race {
+
+    @Override
+    public String getName() {
+        return "Bio Android";
+    }
+
+    @Override
+    public double getBaseKi() {
+        return 500000000; 
+        // Ki extremamente alto, mas não infinito
+    }
+
+    @Override
+    public double getBaseStamina() {
+        return 12000000; 
+        // Bem acima do Android normal
+    }
+
+    @Override
+    public double getHealthRegen() {
+        return 7.0; 
+        /*
+         * Regen:
+         * Saiyan = 1.0
+         * Arcosian = 2.0
+         * Android = 4.0
+         * Bio Android = 7.0  <- aqui
+         * Majin = 10.0
+         */
+    }
+
+    @Override
+    public boolean hasKiRecovery() {
+        return true; // Diferente dos Androids, Bio Android RECUPERA Ki
+    }
+
+    @Override
+    public boolean hasStaminaRecovery() {
+        return true; // Recupera stamina normalmente
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/race/saiyan/SaiyanRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/saiyan/SaiyanRace.java
+==============================
+package com.dragonblockinfinity.race.saiyan;
+
+import com.dragonblockinfinity.race.Race;
+
+public class SaiyanRace implements Race {
+
+    @Override
+    public String getName() {
+        return "Saiyan";
+    }
+
+    @Override
+    public double getBaseKi() {
+        return 35000; 
+        // Ki alto comparado a humanos e namekuseijins
+    }
+
+    @Override
+    public double getBaseStamina() {
+        return 5000;
+        // Stamina média
+    }
+
+    @Override
+    public double getHealthRegen() {
+        return 1.0;
+        // Baixa regeneração
+    }
+
+    @Override
+    public boolean hasKiRecovery() {
+        return true; 
+        // Saiyajins recuperam Ki normalmente
+    }
+
+    @Override
+    public boolean hasStaminaRecovery() {
+        return true;
+    }
+
+    // Sistema Zenkai Boost
+    public double applyZenkaiBoost(double currentHealth, double maxHealth, double powerLevel) {
+        double percentage = currentHealth / maxHealth;
+
+        if (percentage < 0.25) {
+            return powerLevel * 1.5; // 50% boost
+        } else if (percentage < 0.10) {
+            return powerLevel * 2.0; // 100% boost
+        }
+
+        return powerLevel;
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/race/saiyan/HalfSaiyanRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/saiyan/HalfSaiyanRace.java
+==============================
+package com.dragonblockinfinity.race.saiyan;
+
+import com.dragonblockinfinity.race.Race;
+
+public class HalfSaiyanRace implements Race {
+
+    @Override
+    public String getName() {
+        return "Half Saiyan";
+    }
+
+    @Override
+    public double getBaseKi() {
+        return 35000000;
+        // Menos Ki base que um Saiyan, mas cresce mais rápido com treinamento
+    }
+
+    @Override
+    public double getBaseStamina() {
+        return 18000000;
+        // Meio Saiyan tem mais stamina e resistência
+    }
+
+    @Override
+    public double getHealthRegen() {
+        return 2.5;
+        /*
+         * Regen comparação:
+         * Saiyan = 1.0
+         * Half Saiyan = 2.5   <- excelente regen
+         * Arcosian = 2.0
+         * Android = 4.0
+         * Bio Android = 7.0
+         * Majin = 10.0
+         */
+    }
+
+    @Override
+    public boolean hasKiRecovery() {
+        return true; 
+    }
+
+    @Override
+    public boolean hasStaminaRecovery() {
+        return true; 
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/race/arcosian/ArcosianRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/arcosian/ArcosianRace.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/race/majin/MajinRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/majin/MajinRace.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/race/namekian/NamekianRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/namekian/NamekianRace.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/race/human/HumanRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/human/HumanRace.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/race/kaioshin/KaioshinRace.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/race/kaioshin/KaioshinRace.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyan1.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyan1.java
+==============================
+package com.dragonblockinfinity.transformations.saiyan;
+
+import com.dragonblockinfinity.transformations.Transformation;
+
+public class SuperSaiyan1 implements Transformation {
+
+    @Override
+    public String getName() {
+        return "Super Saiyan";
+    }
+
+    @Override
+    public double getPowerMultiplier() {
+        return 50.0;
+    }
+
+    @Override
+    public double getKiDrainPerSecond() {
+        return 50.0;
+    }
+
+    @Override
+    public double getStaminaDrainPerSecond() {
+        return 8.0;
+    }
+
+    @Override
+    public double getStrengthBonus() {
+        return 25.0;
+    }
+
+    @Override
+    public boolean isAvailableForRace(String race) {
+        return race.equalsIgnoreCase("Saiyan");
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/HalfSuperSaiyan1.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/HalfSuperSaiyan1.java
+==============================
+package com.dragonblockinfinity.transformations.saiyan;
+
+import com.dragonblockinfinity.transformations.Transformation;
+
+public class HalfSuperSaiyan1 implements Transformation {
+
+    @Override
+    public String getName() {
+        return "Super Saiyan (Hybrid)";
+    }
+
+    @Override
+    public double getPowerMultiplier() {
+        return 60.0; 
+        // Híbrido = mais potencial no SSJ1
+    }
+
+    @Override
+    public double getKiDrainPerSecond() {
+        return 35.0; 
+        // Mais eficiente que um Saiyan puro
+    }
+
+    @Override
+    public double getStaminaDrainPerSecond() {
+        return 6.0;
+    }
+
+    @Override
+    public double getStrengthBonus() {
+        return 35.0; 
+        // Mais força que SSJ1 puro
+    }
+
+    @Override
+    public boolean isAvailableForRace(String race) {
+        return race.equalsIgnoreCase("Half Saiyan");
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/HalfSuperSaiyan2.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/HalfSuperSaiyan2.java
+==============================
+package com.dragonblockinfinity.transformations.saiyan;
+
+import com.dragonblockinfinity.transformations.Transformation;
+
+public class HalfSuperSaiyan2 implements Transformation {
+
+    @Override
+    public String getName() {
+        return "Super Saiyan 2 (Hybrid)";
+    }
+
+    @Override
+    public double getPowerMultiplier() {
+        return 120.0;
+        // Híbrido domina SSJ2 muito melhor
+    }
+
+    @Override
+    public double getKiDrainPerSecond() {
+        return 55.0;
+        // Consumo moderado
+    }
+
+    @Override
+    public double getStaminaDrainPerSecond() {
+        return 10.0;
+        // SSJ2 exige mais energia
+    }
+
+    @Override
+    public double getStrengthBonus() {
+        return 60.0;
+        // Gohan Teen SSJ2 é um monstro
+    }
+
+    @Override
+    public boolean isAvailableForRace(String race) {
+        return race.equalsIgnoreCase("Half Saiyan");
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/HalfSuperSaiyan3.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/HalfSuperSaiyan3.java
+==============================
+package com.dragonblockinfinity.transformations.saiyan;
+
+import com.dragonblockinfinity.transformations.Transformation;
+
+public class HalfSuperSaiyan3 implements Transformation {
+
+    @Override
+    public String getName() {
+        return "Super Saiyan 3 (Hybrid)";
+    }
+
+    @Override
+    public double getPowerMultiplier() {
+        return 250.0;
+        // Híbridos têm potencial bruto maior
+    }
+
+    @Override
+    public double getKiDrainPerSecond() {
+        return 150.0;
+        // Forma extremamente instável — drenagem absurda
+    }
+
+    @Override
+    public double getStaminaDrainPerSecond() {
+        return 35.0;
+        // Seu corpo não suporta essa forma
+    }
+
+    @Override
+    public double getStrengthBonus() {
+        return 90.0;
+        // SSJ3 buff insano
+    }
+
+    @Override
+    public boolean isAvailableForRace(String race) {
+        return race.equalsIgnoreCase("Half Saiyan");
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/UltimateForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/UltimateForm.java
+==============================
+package com.dragonblockinfinity.transformations.saiyan;
+
+import com.dragonblockinfinity.transformations.Transformation;
+
+public class UltimateForm implements Transformation {
+
+    @Override
+    public String getName() {
+        return "Ultimate (Mystic)";
+    }
+
+    @Override
+    public double getPowerMultiplier() {
+        return 350.0;
+        // Mystic Gohan é mais forte que SSJ3 sem penalidades
+    }
+
+    @Override
+    public double getKiDrainPerSecond() {
+        return 0.0; 
+        // Forma PERFEITA — sem drenagem
+    }
+
+    @Override
+    public double getStaminaDrainPerSecond() {
+        return 0.0;
+        // Ideal para lutas longas
+    }
+
+    @Override
+    public double getStrengthBonus() {
+        return 120.0;
+        // Potencial liberado
+    }
+
+    @Override
+    public boolean isAvailableForRace(String race) {
+        return race.equalsIgnoreCase("Half Saiyan");
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/BeastForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/BeastForm.java
+==============================
+package com.dragonblockinfinity.transformations.saiyan;
+
+import com.dragonblockinfinity.transformations.Transformation;
+
+public class BeastForm implements Transformation {
+
+    @Override
+    public String getName() {
+        return "Beast";
+    }
+
+    @Override
+    public double getPowerMultiplier() {
+        return 950.0;
+        // Forma monstruosa — mais forte que SSJ4 e UI base
+    }
+
+    @Override
+    public double getKiDrainPerSecond() {
+        return 18.0;
+        // Forma extremamente instável
+    }
+
+    @Override
+    public double getStaminaDrainPerSecond() {
+        return 15.0;
+        // Cansa muito rápido
+    }
+
+    @Override
+    public double getStrengthBonus() {
+        return 280.0;
+        // Fúria completa híbrida
+    }
+
+    @Override
+    public boolean isAvailableForRace(String race) {
+        return race.equalsIgnoreCase("Half Saiyan");
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyan2.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyan2.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyan3.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyan3.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyanGod.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyanGod.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyanBlue.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyanBlue.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyanBlueEvolution.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SuperSaiyanBlueEvolution.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/UltraInstinctOmen.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/UltraInstinctOmen.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/UltraInstinctMastered.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/UltraInstinctMastered.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/IkariForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/IkariForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/OozaruForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/OozaruForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/RageForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/RageForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SSJ4.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SSJ4.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/saiyan/SSJGSSJKaioken.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/saiyan/SSJGSSJKaioken.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/arcosian/FirstForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/arcosian/FirstForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/arcosian/SecondForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/arcosian/SecondForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/arcosian/ThirdForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/arcosian/ThirdForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/arcosian/FinalForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/arcosian/FinalForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/arcosian/GoldenForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/arcosian/GoldenForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/arcosian/BlackFriezaForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/arcosian/BlackFriezaForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/majin/PureMajin.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/majin/PureMajin.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/majin/EvilMajin.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/majin/EvilMajin.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/majin/SuperMajin.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/majin/SuperMajin.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/bioandroid/ImperfectForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/bioandroid/ImperfectForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/bioandroid/SemiPerfectForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/bioandroid/SemiPerfectForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/bioandroid/PerfectForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/bioandroid/PerfectForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/bioandroid/SuperPerfectForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/bioandroid/SuperPerfectForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/kaioshin/PotentialUnlocked.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/kaioshin/PotentialUnlocked.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/kaioshin/GodForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/kaioshin/GodForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/kaioshin/KaioshinMode.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/kaioshin/KaioshinMode.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/namekian/GiantNamek.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/namekian/GiantNamek.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/namekian/GreatNamekian.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/namekian/GreatNamekian.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/namekian/PotentialNamek.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/namekian/PotentialNamek.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/hakai/HakaiMode.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/hakai/HakaiMode.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/hakai/GodOfDestructionForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/hakai/GodOfDestructionForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/hakai/UltraDestruction.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/hakai/UltraDestruction.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/HalfSuperSaiyan1.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/HalfSuperSaiyan1.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/HalfSuperSaiyan2.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/HalfSuperSaiyan2.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/HalfSuperSaiyan3.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/HalfSuperSaiyan3.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/UltimateForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/UltimateForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/BeastForm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/halfsaiyan/BeastForm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/PotentialHuman.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/PotentialHuman.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/GodFocus.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/GodFocus.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/BalanceMode.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/BalanceMode.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/Transformation.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/Transformation.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/transformations/TransformationBase.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/transformations/TransformationBase.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/KiBlast.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/KiBlast.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/Kamehameha.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/Kamehameha.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/FinalFlash.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/FinalFlash.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/Masenko.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/Masenko.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/SpecialBeamCannon.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/SpecialBeamCannon.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/DeathBeam.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/DeathBeam.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/BioAbsorption.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/BioAbsorption.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/MajinSeal.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/MajinSeal.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/skills/UltraInstinctDodge.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/skills/UltraInstinctDodge.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/hud/menus/MainMenuScreen.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/menus/MainMenuScreen.java
+==============================
+package com.dragonblockinfinity.hud.menus;
+
+import com.dragonblockinfinity.hud.menus.components.*;
+import com.dragonblockinfinity.stats.PlayerStatsComponent;
+import com.dragonblockinfinity.stats.PlayerRaceComponent;
+import com.dragonblockinfinity.stats.PlayerTransformationComponent;
+
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
+
+public class MainMenuScreen extends Screen {
+
+    private final PlayerEntity player;
+
+    // Componentes visuais do menu
+    private RaceDisplay raceDisplay;
+    private TransformationDisplay transformationDisplay;
+    private StatsDisplay statsDisplay;
+    private TPCostDisplay tpCostDisplay;
+
+    public MainMenuScreen(PlayerEntity player) {
+        super(Text.literal("DragonBlock Infinity - Status"));
+        this.player = player;
+    }
+
+    @Override
+    protected void init() {
+
+        int baseX = 20;
+        int baseY = 20;
+
+        // Criar componentes com posições organizadas
+        raceDisplay = new RaceDisplay(player, baseX, baseY);
+        transformationDisplay = new TransformationDisplay(player, baseX, baseY + 50);
+        statsDisplay = new StatsDisplay(player, baseX, baseY + 120);
+        tpCostDisplay = new TPCostDisplay(player, baseX, baseY + 220);
+
+        super.init();
+    }
+
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+
+        // Fundo
+        this.renderBackground(context);
+
+        // Renderizar módulos
+        raceDisplay.render(context, mouseX, mouseY, delta);
+        transformationDisplay.render(context, mouseX, mouseY, delta);
+        statsDisplay.render(context, mouseX, mouseY, delta);
+        tpCostDisplay.render(context, mouseX, mouseY, delta);
+
+        super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean shouldPause() {
+        return true; // Pausar jogo ao abrir menu
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/menus/components/RaceDisplay.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/menus/components/RaceDisplay.java
+==============================
+package com.dragonblockinfinity.hud.menus.components;
+
+import com.dragonblockinfinity.stats.PlayerRaceComponent;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
+
+public class RaceDisplay {
+
+    private final PlayerEntity player;
+    private final int x;
+    private final int y;
+
+    public RaceDisplay(PlayerEntity player, int x, int y) {
+        this.player = player;
+        this.x = x;
+        this.y = y;
+    }
+
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        TextRenderer textRenderer = context.getTextRenderer();
+
+        String raceName = PlayerRaceComponent.get(player).getRaceName();
+
+        context.drawText(
+                textRenderer,
+                Text.literal("Raça: " + raceName),
+                x,
+                y,
+                0xFFFFFF,
+                false
+        );
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/menus/components/TransformationDisplay.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/menus/components/TransformationDisplay.java
+==============================
+package com.dragonblockinfinity.hud.menus.components;
+
+import com.dragonblockinfinity.stats.PlayerTransformationComponent;
+import com.dragonblockinfinity.hud.menus.components.MasteryTooltip;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.text.Text;
+import net.minecraft.entity.player.PlayerEntity;
+
+public class TransformationDisplay {
+
+    private final PlayerEntity player;
+    private final int x;
+    private final int y;
+
+    private final int barWidth = 120;
+    private final int barHeight = 8;
+
+    public TransformationDisplay(PlayerEntity player, int x, int y) {
+        this.player = player;
+        this.x = x;
+        this.y = y;
+    }
+
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        TextRenderer tr = context.getTextRenderer();
+
+        PlayerTransformationComponent comp = PlayerTransformationComponent.get(player);
+
+        String formName = comp.getCurrentFormName();
+        int mastery = comp.getMastery();
+        int masteryMax = comp.getMasteryMax();
+
+        // Nome da transformação
+        context.drawText(tr, Text.literal("Forma Atual: " + formName), x, y, 0x00B2FF, false);
+
+        // Barra de mastery
+        int filled = (int) ((mastery / (float) masteryMax) * barWidth);
+
+        // fundo
+        context.fill(x, y + 15, x + barWidth, y + 15 + barHeight, 0x55000000);
+        // preenchido
+        context.fill(x, y + 15, x + filled, y + 15 + barHeight, 0xFFA0A0A0);
+
+        // Tooltip ao passar o mouse
+        boolean hovering =
+                mouseX >= x && mouseX <= x + barWidth &&
+                mouseY >= y + 15 && mouseY <= y + 15 + barHeight;
+
+        if (hovering) {
+            MasteryTooltip.renderTooltip(context, mouseX, mouseY, mastery, masteryMax);
+        }
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/menus/components/MasteryTooltip.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/menus/components/MasteryTooltip.java
+==============================
+package com.dragonblockinfinity.hud.menus.components;
+
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.text.Text;
+
+public class MasteryTooltip {
+
+    public static void renderTooltip(DrawContext context, int mouseX, int mouseY, int mastery, int masteryMax) {
+        TextRenderer tr = context.getTextRenderer();
+
+        String line1 = "Mastery: " + mastery + " / " + masteryMax;
+        String line2 = "Quanto maior a mastery, mais forte a forma fica";
+        String line3 = "e menor o gasto de KI e Stamina.";
+
+        int width = Math.max(
+                tr.getWidth(line1),
+                Math.max(tr.getWidth(line2), tr.getWidth(line3))
+        ) + 10;
+
+        int height = 36;
+
+        int x = mouseX + 12;
+        int y = mouseY + 12;
+
+        // fundo preto com transparência
+        context.fill(x, y, x + width, y + height, 0xAA000000);
+
+        // texto
+        context.drawText(tr, Text.literal(line1), x + 5, y + 5, 0xFFFFFF, false);
+        context.drawText(tr, Text.literal(line2), x + 5, y + 15, 0x00B2FF, false);
+        context.drawText(tr, Text.literal(line3), x + 5, y + 25, 0x00B2FF, false);
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/menus/components/StatsDisplay.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/menus/components/StatsDisplay.java
+==============================
+package com.dragonblockinfinity.hud.menus.components;
+
+import com.dragonblockinfinity.stats.PlayerStatsComponent;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
+
+public class StatsDisplay {
+
+    private final PlayerEntity player;
+    private final int x;
+    private final int y;
+
+    public StatsDisplay(PlayerEntity player, int x, int y) {
+        this.player = player;
+        this.x = x;
+        this.y = y;
+    }
+
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        TextRenderer tr = context.getTextRenderer();
+        PlayerStatsComponent stats = PlayerStatsComponent.get(player);
+
+        int lineY = y;
+
+        context.drawText(tr, Text.literal("Status:"), x, lineY, 0xFFFFFF, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("+ STR: " + stats.getSTR()), x, lineY, 0xFFAAAA, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("+ DEX: " + stats.getDEX()), x, lineY, 0xFFAAAA, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("+ CON: " + stats.getCON()), x, lineY, 0xFFAAAA, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("+ SPI: " + stats.getSPI()), x, lineY, 0xFFAAAA, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("+ WILL: " + stats.getWILL()), x, lineY, 0xFFAAAA, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("+ MND: " + stats.getMND()), x, lineY, 0xFFAAAA, false);
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/menus/components/TPCostDisplay.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/menus/components/TPCostDisplay.java
+==============================
+package com.dragonblockinfinity.hud.menus.components;
+
+import com.dragonblockinfinity.stats.PlayerStatsComponent;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
+
+public class TPCostDisplay {
+
+    private final PlayerEntity player;
+    private final int x;
+    private final int y;
+
+    // Valores fixos que podem ser alterados futuramente por raça, forma ou mastery
+    private final int tpPerPoint = 16;
+
+    public TPCostDisplay(PlayerEntity player, int x, int y) {
+        this.player = player;
+        this.x = x;
+        this.y = y;
+    }
+
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        TextRenderer tr = context.getTextRenderer();
+        PlayerStatsComponent stats = PlayerStatsComponent.get(player);
+
+        int cost1 = tpPerPoint;
+        int cost10 = tpPerPoint * 10;
+
+        int lineY = y;
+
+        context.drawText(tr, Text.literal("Custo de TP:"), x, lineY, 0xFFFFFF, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("• 1 ponto: " + cost1), x, lineY, 0xFFFF55, false);
+        lineY += 12;
+
+        context.drawText(tr, Text.literal("• 10 pontos: " + cost10), x, lineY, 0xFFFF55, false);
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/inputs/MenuButtonOverlay.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/inputs/MenuButtonOverlay.java
+==============================
+package com.dragonblockinfinity.hud.inputs;
+
+import com.dragonblockinfinity.hud.menus.MainMenuScreen;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+
+public class MenuButtonOverlay implements HudRenderCallback {
+
+    @Override
+    public void onHudRender(DrawContext context, float tickDelta) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.options.hudHidden) return;
+
+        int x = 10;
+        int y = client.getWindow().getScaledHeight() - 40;
+
+        // fundo do botão
+        context.fill(x, y, x + 80, y + 30, 0x80000000);
+
+        // texto
+        context.drawText(client.textRenderer, "MENU", x + 20, y + 10, 0xFFFFFF, false);
+
+        // clicou?
+        if (isClicked(x, y, 80, 30)) {
+            client.setScreen(new MainMenuScreen());
+        }
+    }
+
+    private boolean isClicked(int x, int y, int w, int h) {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        if (client.mouse.wasLeftButtonClicked()) {
+            double mx = client.mouse.getX() / client.getWindow().getScaleFactor();
+            double my = client.mouse.getY() / client.getWindow().getScaleFactor();
+
+            return mx >= x && mx <= x + w &&
+                   my >= y && my <= y + h;
+        }
+        return false;
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/MainHudOverlay.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/MainHudOverlay.java
+==============================
+package com.dragonblockinfinity.hud;
+
+import com.dragonblockinfinity.stats.PlayerStatsComponent;
+import com.dragonblockinfinity.stats.PlayerStatsProvider;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.MatrixStack;
+
+public class MainHudOverlay implements HudRenderCallback {
+
+    @Override
+    public void onHudRender(MatrixStack matrices, float tickDelta) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null) return;
+
+        PlayerStatsComponent stats = PlayerStatsProvider.get(client.player);
+        if (stats == null) return;
+
+        // KI
+        double ki = stats.getCurrentKi();
+        double maxKi = stats.getMaxKi();
+
+        int kiBarX = 10;
+        int kiBarY = 10;
+        int kiBarWidth = 180;
+        int kiBarHeight = 14;
+
+        // fundo
+        fill(matrices, kiBarX, kiBarY, kiBarX + kiBarWidth, kiBarY + kiBarHeight, 0xAA000000);
+        int kiFill = (int) ((ki / maxKi) * kiBarWidth);
+        fill(matrices, kiBarX, kiBarY, kiBarX + kiFill, kiBarY + kiBarHeight, 0xFF008CFF);
+
+        // texto em cima
+        client.textRenderer.draw(matrices, (int)ki + " / " + (int)maxKi, kiBarX, kiBarY - 12, 0x00A2FF);
+
+        // BP dentro da barra (calcule com stats)
+        long bp = Math.round(stats.getBattlePower());
+        client.textRenderer.draw(matrices, "BP: " + bp, kiBarX + 6, kiBarY + 3, 0x000000);
+
+        // HP + Stamina no lado direito
+        double hp = stats.getCurrentHealth();
+        double maxHp = stats.getMaxHealth();
+        double stamina = stats.getCurrentStamina();
+        double maxSt = stats.getMaxStamina();
+
+        int screenWidth = client.getWindow().getScaledWidth();
+        int hpBarWidth = 140;
+        int hpBarHeight = 12;
+        int hpBarX = screenWidth - hpBarWidth - 10;
+        int hpBarY = client.getWindow().getScaledHeight() / 2 - 10;
+
+        // HP
+        fill(matrices, hpBarX, hpBarY, hpBarX + hpBarWidth, hpBarY + hpBarHeight, 0xAA000000);
+        int hpFill = (int) ((hp / maxHp) * hpBarWidth);
+        fill(matrices, hpBarX, hpBarY, hpBarX + hpFill, hpBarY + hpBarHeight, 0xFFFF0000);
+        client.textRenderer.draw(matrices, "HP: " + (int)hp + " / " + (int)maxHp, hpBarX, hpBarY - 10, 0xFF4444);
+
+        // Stamina (abaixo)
+        int stY = hpBarY + hpBarHeight + 6;
+        fill(matrices, hpBarX, stY, hpBarX + hpBarWidth, stY + hpBarHeight, 0xAA000000);
+        int stFill = (int) ((stamina / maxSt) * hpBarWidth);
+        fill(matrices, hpBarX, stY, hpBarX + stFill, stY + hpBarHeight, 0xFFFFFF00);
+        client.textRenderer.draw(matrices, "STM: " + (int)stamina + " / " + (int)maxSt, hpBarX, stY - 10, 0xFFFF55);
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/KiHud.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/KiHud.java
+==============================
+package com.dragonblockinfinity.hud;
+
+import com.dragonblockinfinity.stats.PlayerStatsProvider;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.Identifier;
+
+public class KiHud implements HudRenderCallback {
+
+    private static final int BAR_WIDTH = 120;
+    private static final int BAR_HEIGHT = 10;
+
+    @Override
+    public void onHudRender(DrawContext context, float tickDelta) {
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null) return;
+
+        var ki = PlayerStatsProvider.getClientKi();
+        var stats = PlayerStatsProvider.getClientStats();
+
+        int x = 10;   // canto ESQUERDO
+        int y = 10;   // topo
+
+        int current = ki.getClientKi();
+        int max = ki.getClientMaxKi();
+
+        // Fundo preto
+        context.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF000000);
+
+        // Azul (barra atual)
+        int filled = (int) ((current / (float) max) * BAR_WIDTH);
+        context.fill(x, y, x + filled, y + BAR_HEIGHT, 0xFF1E90FF);
+
+        // Texto "KI: atual/max"
+        String text = "KI: " + current + " / " + max;
+        context.drawText(client.textRenderer, text, x + 2, y - 10, 0xFFFFFFFF, true);
+
+        // Mostrar BP logo abaixo
+        int bp = stats.getClientBP();
+        String bpText = "BP: " + bp;
+        context.drawText(client.textRenderer, bpText, x + 2, y + BAR_HEIGHT + 3, 0xFFFFFFFF, true);
+    }
+
+    // Registrar HUD no client
+    public static void register() {
+        HudRenderCallback.EVENT.register(new KiHud());
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/StaminaHud.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/StaminaHud.java
+==============================
+package com.dragonblockinfinity.hud;
+
+import com.dragonblockinfinity.stats.PlayerStatsProvider;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+
+public class StaminaHud implements HudRenderCallback {
+
+    private static final int BAR_WIDTH = 120;
+    private static final int BAR_HEIGHT = 10;
+
+    @Override
+    public void onHudRender(DrawContext context, float tickDelta) {
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null) return;
+
+        var stamina = PlayerStatsProvider.getClientStamina();
+
+        int screenWidth = client.getWindow().getScaledWidth();
+        int screenHeight = client.getWindow().getScaledHeight();
+
+        int x = screenWidth - BAR_WIDTH - 15; // lado direito
+        int y = screenHeight / 2;             // meio da tela
+
+        int current = stamina.getClientStamina();
+        int max = stamina.getClientMaxStamina();
+
+        // fundo preto
+        context.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF000000);
+
+        // barra amarela
+        int filled = (int)((current / (float)max) * BAR_WIDTH);
+        context.fill(x, y, x + filled, y + BAR_HEIGHT, 0xFFFFFF00);
+
+        // texto
+        String text = "STA: " + current + " / " + max;
+        context.drawText(client.textRenderer, text, x + 2, y - 10, 0xFFFFFFFF, true);
+    }
+
+    public static void register() {
+        HudRenderCallback.EVENT.register(new StaminaHud());
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/hud/BpHud.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/hud/BpHud.java
+==============================
+package com.dragonblockinfinity.hud;
+
+import com.dragonblockinfinity.stats.PlayerStatsProvider;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+
+public class BpHud implements HudRenderCallback {
+
+    @Override
+    public void onHudRender(DrawContext context, float tickDelta) {
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null) return;
+
+        var stats = PlayerStatsProvider.getClientStats();
+
+        int screenWidth = client.getWindow().getScaledWidth();
+        int screenHeight = client.getWindow().getScaledHeight();
+
+        int bp = stats.getClientBP();
+
+        String text = "BP: " + bp;
+
+        context.drawText(
+                client.textRenderer,
+                text,
+                screenWidth / 2 - 20,   // quase centro
+                screenHeight - 55,      // logo acima do hotbar
+                0xFFFFFFFF,
+                true
+        );
+    }
+
+    public static void register() {
+        HudRenderCallback.EVENT.register(new BpHud());
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/npc/GokuNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/GokuNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/npc/VegetaNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/VegetaNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/npc/WhisNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/WhisNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/npc/BeerusNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/BeerusNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/npc/FreezaNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/FreezaNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/npc/CellNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/CellNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/npc/BuuNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/BuuNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/npc/KaioshinNPC.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/npc/KaioshinNPC.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/structures/SaiyanHouse.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/structures/SaiyanHouse.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/structures/NamekHouse.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/structures/NamekHouse.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/structures/FriezaShip.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/structures/FriezaShip.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/structures/BeerusPlanet.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/structures/BeerusPlanet.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/structures/KaioshinRealm.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/structures/KaioshinRealm.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/structures/TimeChamber.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/structures/TimeChamber.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/dimensions/PlanetNamek.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/dimensions/PlanetNamek.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/dimensions/BeerusPlanetDim.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/dimensions/BeerusPlanetDim.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/dimensions/KaioshinRealmDim.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/dimensions/KaioshinRealmDim.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/dimensions/SpaceVoid.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/dimensions/SpaceVoid.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/AndroidEvolution.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/AndroidEvolution.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/ai/NpcAIAttack.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/ai/NpcAIAttack.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/ai/NpcAIFollow.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/ai/NpcAIFollow.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/ai/NpcAIPatrol.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/ai/NpcAIPatrol.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerStatsComponent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerStatsComponent.java
+==============================
+package com.dragonblockinfinity.stats;
+
+import net.minecraft.nbt.NbtCompound;
+
+public class PlayerStatsComponent {
+
+    // Base stats avançados
+    private int strength = 10;   // Força bruta
+    private int dexterity = 10;  // Velocidade, esquiva
+    private int constitution = 10; // Vida, defesa bruta
+    private int willpower = 10;    // Resistência mental, ki clash, bloqueio
+    private int spirit = 10;      // Ki power, ki control, dano de técnicas
+    private int mind = 10;        // Buffs, skills de aprendizado
+
+    // Atributos derivados
+    private double maxHealth;
+    private double maxKi;
+    private double maxStamina;
+    private double battlePower;
+
+    // Valores dinâmicos (são salvos)
+    private double currentHealth;
+    private double currentKi;
+    private double currentStamina;
+
+    // Flags
+    private boolean initialized = false;
+
+    public PlayerStatsComponent() {
+        recalculateStats();
+        // current values serão inicializados no load ou no primeiro tick
+    }
+
+    // Recalcular vida/ki/stamina/BP com sistema avançado
+    public void recalculateStats() {
+
+        this.maxHealth = (constitution * 20) + (willpower * 5);
+
+        this.maxKi =
+                (spirit * 35) +
+                (willpower * 20) +
+                (strength * 8) +
+                (dexterity * 5);
+
+        this.maxStamina =
+                (constitution * 15) +
+                (dexterity * 20) +
+                (mind * 5);
+
+        // Fórmula avançada BP estilo DBC + Xenoverse
+        this.battlePower =
+                (strength * 38) +
+                (dexterity * 25) +
+                (constitution * 40) +
+                (willpower * 30) +
+                (spirit * 45) +
+                (mind * 15);
+
+        // Se ainda não inicializou os current, inicializa agora
+        if (!initialized) {
+            this.currentHealth = this.maxHealth;
+            this.currentKi = this.maxKi;
+            this.currentStamina = this.maxStamina;
+            initialized = true;
+        } else {
+            // clamp current values
+            if (currentHealth > maxHealth) currentHealth = maxHealth;
+            if (currentKi > maxKi) currentKi = maxKi;
+            if (currentStamina > maxStamina) currentStamina = maxStamina;
+        }
+    }
+
+    // ===========================
+    // GETTERS
+    // ===========================
+    public int getStrength() { return strength; }
+    public int getDexterity() { return dexterity; }
+    public int getConstitution() { return constitution; }
+    public int getWillpower() { return willpower; }
+    public int getSpirit() { return spirit; }
+    public int getMind() { return mind; }
+
+    public double getMaxHealth() { return maxHealth; }
+    public double getMaxKi() { return maxKi; }
+    public double getMaxStamina() { return maxStamina; }
+    public double getBattlePower() { return battlePower; }
+
+    public double getCurrentHealth() { return currentHealth; }
+    public double getCurrentKi() { return currentKi; }
+    public double getCurrentStamina() { return currentStamina; }
+
+    // ===========================
+    // SETTERS
+    // ===========================
+    public void setStrength(int value) { this.strength = value; recalculateStats(); }
+    public void setDexterity(int value) { this.dexterity = value; recalculateStats(); }
+    public void setConstitution(int value) { this.constitution = value; recalculateStats(); }
+    public void setWillpower(int value) { this.willpower = value; recalculateStats(); }
+    public void setSpirit(int value) { this.spirit = value; recalculateStats(); }
+    public void setMind(int value) { this.mind = value; recalculateStats(); }
+
+    public void setCurrentHealth(double v) { this.currentHealth = clamp(v, 0, maxHealth); }
+    public void setCurrentKi(double v) { this.currentKi = clamp(v, 0, maxKi); }
+    public void setCurrentStamina(double v) { this.currentStamina = clamp(v, 0, maxStamina); }
+
+    // ===========================
+    // KI / STAMINA helpers
+    // ===========================
+    public boolean consumeKi(double amount) {
+        if (amount <= 0) return true;
+        if (currentKi >= amount) {
+            currentKi -= amount;
+            return true;
+        } else {
+            // not enough ki
+            currentKi = 0;
+            return false;
+        }
+    }
+
+    public boolean consumeStamina(double amount) {
+        if (amount <= 0) return true;
+        if (currentStamina >= amount) {
+            currentStamina -= amount;
+            return true;
+        } else {
+            currentStamina = 0;
+            return false;
+        }
+    }
+
+    public void regenTick(double kiRegen, double staminaRegen, double healthRegen) {
+        // add regen and clamp
+        this.currentKi = clamp(this.currentKi + kiRegen, 0, this.maxKi);
+        this.currentStamina = clamp(this.currentStamina + staminaRegen, 0, this.maxStamina);
+        this.currentHealth = clamp(this.currentHealth + healthRegen, 0, this.maxHealth);
+    }
+
+    private double clamp(double val, double min, double max) {
+        if (val < min) return min;
+        if (val > max) return max;
+        return val;
+    }
+
+    // ===========================
+    // SAVE / LOAD
+    // ===========================
+    public void saveToNbt(NbtCompound nbt) {
+        nbt.putInt("str", strength);
+        nbt.putInt("dex", dexterity);
+        nbt.putInt("con", constitution);
+        nbt.putInt("will", willpower);
+        nbt.putInt("spi", spirit);
+        nbt.putInt("mnd", mind);
+
+        nbt.putDouble("currentHealth", currentHealth);
+        nbt.putDouble("currentKi", currentKi);
+        nbt.putDouble("currentStamina", currentStamina);
+        nbt.putBoolean("initialized", initialized);
+    }
+
+    public void loadFromNbt(NbtCompound nbt) {
+        if (nbt.contains("str")) strength = nbt.getInt("str");
+        if (nbt.contains("dex")) dexterity = nbt.getInt("dex");
+        if (nbt.contains("con")) constitution = nbt.getInt("con");
+        if (nbt.contains("will")) willpower = nbt.getInt("will");
+        if (nbt.contains("spi")) spirit = nbt.getInt("spi");
+        if (nbt.contains("mnd")) mind = nbt.getInt("mnd");
+
+        if (nbt.contains("currentHealth")) currentHealth = nbt.getDouble("currentHealth");
+        if (nbt.contains("currentKi")) currentKi = nbt.getDouble("currentKi");
+        if (nbt.contains("currentStamina")) currentStamina = nbt.getDouble("currentStamina");
+        if (nbt.contains("initialized")) initialized = nbt.getBoolean("initialized");
+
+        recalculateStats();
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerStatsProvider.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerStatsProvider.java
+==============================
+package com.dragonblockinfinity.stats;
+
+import dev.onyxstudios.cca.api.v3.component.ComponentKey;
+import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
+import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
+import net.minecraft.entity.player.PlayerEntity;
+
+public class PlayerStatsProvider {
+
+    // Registro do componente CCA
+    public static final ComponentKey<PlayerStatsComponent> PLAYER_STATS =
+            ComponentRegistry.getOrCreate(
+                    new net.minecraft.util.Identifier("dragonblockinfinity", "player_stats"),
+                    PlayerStatsComponent.class
+            );
+
+    // Obter stats de um player
+    public static PlayerStatsComponent get(PlayerEntity player) {
+        return PLAYER_STATS.get(player);
+    }
+
+    // Sincronização automática aos clientes
+    public static class Synced implements AutoSyncedComponent {
+        private final PlayerEntity player;
+        private final PlayerStatsComponent stats;
+
+        public Synced(PlayerEntity player, PlayerStatsComponent stats) {
+            this.player = player;
+            this.stats = stats;
+        }
+
+        @Override
+        public void sync() {
+            PLAYER_STATS.sync(this.player);
+        }
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerStatsSync.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerStatsSync.java
+==============================
+package com.dragonblockinfinity.stats;
+
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ClientPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
+
+public class PlayerStatsSync {
+
+    public static final Identifier STATS_SYNC_ID =
+            new Identifier("dragonblockinfinity", "sync_player_stats");
+
+    // =========================
+    // SERVER -> CLIENT
+    // =========================
+    public static void sendToClient(PlayerStatsComponent stats, net.minecraft.server.network.ServerPlayerEntity player) {
+        PacketByteBuf buf = PacketByteBufs.create();
+
+        buf.writeInt(stats.getStrength());
+        buf.writeInt(stats.getDexterity());
+        buf.writeInt(stats.getConstitution());
+        buf.writeInt(stats.getWillpower());
+        buf.writeInt(stats.getSpirit());
+        buf.writeInt(stats.getMind());
+
+        ServerPlayNetworking.send(player, STATS_SYNC_ID, buf);
+    }
+
+    // =========================
+    // CLIENT RECEBE OS STATS
+    // =========================
+    public static void registerClientReceiver() {
+
+        ClientPlayNetworking.registerGlobalReceiver(STATS_SYNC_ID, (client, handler, buf, responseSender) -> {
+
+            int str = buf.readInt();
+            int dex = buf.readInt();
+            int con = buf.readInt();
+            int will = buf.readInt();
+            int spi = buf.readInt();
+            int mnd = buf.readInt();
+
+            client.execute(() -> {
+                if (MinecraftClient.getInstance().player != null) {
+
+                    PlayerStatsComponent stats =
+                            PlayerStatsProvider.get(MinecraftClient.getInstance().player);
+
+                    stats.setStrength(str);
+                    stats.setDexterity(dex);
+                    stats.setConstitution(con);
+                    stats.setWillpower(will);
+                    stats.setSpirit(spi);
+                    stats.setMind(mnd);
+                }
+            });
+        });
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerRaceComponent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerRaceComponent.java
+==============================
+package com.dragonblockinfinity.stats;
+
+import net.minecraft.nbt.NbtCompound;
+
+public class PlayerRaceComponent {
+
+    public enum Race {
+        HUMAN,
+        SAIYAN,
+        HYBRID_SAIYAN,
+        NAMEKIAN,
+        ARCOSIAN,
+        MAJIN,
+        ANDROID,
+        BIO_ANDROID,
+        KAIOSHIN
+    }
+
+    private Race race = Race.HUMAN;  // Raça padrão
+    private boolean hasGodKi = false;
+    private boolean isTransformed = false;
+
+    public PlayerRaceComponent() {}
+
+    // ==========================
+    // GETTERS
+    // ==========================
+    public Race getRace() {
+        return race;
+    }
+
+    public boolean hasGodKi() {
+        return hasGodKi;
+    }
+
+    public boolean isTransformed() {
+        return isTransformed;
+    }
+
+    // ==========================
+    // SETTERS
+    // ==========================
+
+    public void setRace(Race r) {
+        this.race = r;
+    }
+
+    public void setGodKi(boolean value) {
+        this.hasGodKi = value;
+    }
+
+    public void setTransformed(boolean value) {
+        this.isTransformed = value;
+    }
+
+    // ========================================================
+    // SALVAR / CARREGAR (NBT)
+    // ========================================================
+    public void saveToNbt(NbtCompound nbt) {
+        nbt.putString("race", race.name());
+        nbt.putBoolean("godKi", hasGodKi);
+        nbt.putBoolean("transformed", isTransformed);
+    }
+
+    public void loadFromNbt(NbtCompound nbt) {
+        if (nbt.contains("race")) {
+            this.race = Race.valueOf(nbt.getString("race"));
+        }
+        if (nbt.contains("godKi")) {
+            this.hasGodKi = nbt.getBoolean("godKi");
+        }
+        if (nbt.contains("transformed")) {
+            this.isTransformed = nbt.getBoolean("transformed");
+        }
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerTransformationComponent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerTransformationComponent.java
+==============================
+package com.dragonblockinfinity.stats;
+
+import net.minecraft.nbt.NbtCompound;
+
+public class PlayerTransformationComponent {
+
+    public enum Transformation {
+
+        // ==== SAIYANS ====
+        BASE,
+        SSJ1,
+        SSJ2,
+        SSJ3,
+        GOD,
+        BLUE,
+        UI_OMEN,
+        ULTRA_INSTINCT,
+
+        // ==== ARCOSIAN ====
+        ARCOSIAN_FORM1,
+        ARCOSIAN_FORM2,
+        ARCOSIAN_FORM3,
+        ARCOSIAN_GOLDEN,
+
+        // ==== MAJIN ====
+        PURE_MAJIN,
+
+        // ==== NAMEKIAN ====
+        GIANT_NAMEK,
+
+        // ==== HUMAN ====
+        HIDDEN_POTENTIAL,
+
+        // ==== BIO-ANDROID ====
+        PERFECT_FORM,
+
+        // ==== ANDROID ====
+        OVERCLOCK
+    }
+
+    private Transformation current = Transformation.BASE;
+    private int timer = 0;
+    private boolean active = false;
+
+    // Multiplicadores da forma
+    private double strengthMultiplier = 1.0;
+    private double dexMultiplier = 1.0;
+    private double conMultiplier = 1.0;
+    private double willMultiplier = 1.0;
+    private double spiritMultiplier = 1.0;
+
+    public PlayerTransformationComponent() {}
+
+    // ========================================
+    // ATIVAR TRANSFORMAÇÃO
+    // ========================================
+    public void activate(Transformation form) {
+        this.current = form;
+        this.active = true;
+        this.timer = 0;
+        applyMultipliers(form);
+    }
+
+    // ========================================
+    // DESATIVAR TRANSFORMAÇÃO
+    // ========================================
+    public void deactivate() {
+        this.current = Transformation.BASE;
+        this.active = false;
+        this.timer = 0;
+        strengthMultiplier = 1.0;
+        dexMultiplier = 1.0;
+        conMultiplier = 1.0;
+        willMultiplier = 1.0;
+        spiritMultiplier = 1.0;
+    }
+
+    // ========================================
+    // MULTIPLICADORES DE CADA FORMA
+    // ========================================
+    private void applyMultipliers(Transformation form) {
+        switch (form) {
+
+            // ==== SAIYANS ====
+            case SSJ1 -> setMulti(1.5, 1.3, 1.2, 1.2, 1.3);
+            case SSJ2 -> setMulti(2.0, 1.5, 1.3, 1.3, 1.4);
+            case SSJ3 -> setMulti(4.0, 2.0, 1.6, 1.5, 2.0);
+            case GOD -> setMulti(8.0, 4.0, 3.0, 4.0, 6.0);
+            case BLUE -> setMulti(15.0, 8.0, 5.0, 7.0, 9.0);
+            case UI_OMEN -> setMulti(40.0, 30.0, 12.0, 20.0, 25.0);
+            case ULTRA_INSTINCT -> setMulti(80.0, 50.0, 20.0, 30.0, 40.0);
+
+            // ==== ARCOSIAN ====
+            case ARCOSIAN_FORM1 -> setMulti(1.8, 1.2, 1.1, 1.2, 1.1);
+            case ARCOSIAN_FORM2 -> setMulti(3.5, 2.0, 1.6, 1.4, 1.3);
+            case ARCOSIAN_FORM3 -> setMulti(6.0, 3.5, 2.0, 1.6, 1.5);
+            case ARCOSIAN_GOLDEN -> setMulti(25.0, 12.0, 6.0, 10.0, 14.0);
+
+            // ==== MAJIN ====
+            case PURE_MAJIN -> setMulti(30.0, 10.0, 15.0, 12.0, 18.0);
+
+            // ==== NAMEKIAN ====
+            case GIANT_NAMEK -> setMulti(10.0, 5.0, 20.0, 5.0, 3.0);
+
+            // ==== HUMAN ====
+            case HIDDEN_POTENTIAL -> setMulti(5.0, 3.0, 3.0, 2.0, 2.5);
+
+            // ==== BIO-ANDROID ====
+            case PERFECT_FORM -> setMulti(20.0, 15.0, 10.0, 10.0, 12.0);
+
+            // ==== ANDROID ====
+            case OVERCLOCK -> setMulti(12.0, 8.0, 4.0, 6.0, 3.0);
+
+            default -> setMulti(1.0, 1.0, 1.0, 1.0, 1.0);
+        }
+    }
+
+    private void setMulti(double str, double dex, double con, double will, double spi) {
+        strengthMultiplier = str;
+        dexMultiplier = dex;
+        conMultiplier = con;
+        willMultiplier = will;
+        spiritMultiplier = spi;
+    }
+
+    // ========================================
+    // GETTERS
+    // ========================================
+    public boolean isActive() { return active; }
+    public Transformation getCurrent() { return current; }
+    public int getTimer() { return timer; }
+
+    public double getStrengthMultiplier() { return strengthMultiplier; }
+    public double getDexMultiplier() { return dexMultiplier; }
+    public double getConMultiplier() { return conMultiplier; }
+    public double getWillMultiplier() { return willMultiplier; }
+    public double getSpiritMultiplier() { return spiritMultiplier; }
+
+    // ========================================
+    // TICK
+    // ========================================
+    public void tick() {
+        if (active) timer++;
+    }
+
+    // ========================================
+    // NBT SAVE/LOAD
+    // ========================================
+    public void saveToNbt(NbtCompound nbt) {
+        nbt.putString("current_form", current.name());
+        nbt.putBoolean("active", active);
+        nbt.putInt("timer", timer);
+    }
+
+    public void loadFromNbt(NbtCompound nbt) {
+        if (nbt.contains("current_form"))
+            this.current = Transformation.valueOf(nbt.getString("current_form"));
+
+        if (nbt.contains("active"))
+            this.active = nbt.getBoolean("active");
+
+        if (nbt.contains("timer"))
+            this.timer = nbt.getInt("timer");
+
+        applyMultipliers(current);
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerKiComponent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerKiComponent.java
+==============================
+package com.dragonblockinfinity.stats;
+
+public class PlayerKiComponent {
+
+    private int currentKi;
+    private int maxKi;
+
+    private boolean isExhausted = false;
+    private boolean isOverflow = false;
+
+    private float regenRate = 1.0f;   // base regen
+    private float drainRate = 1.0f;   // base drain
+
+    private float transformationMultiplier = 1.0f;
+
+    public PlayerKiComponent() {
+        this.maxKi = 100;   // valor base
+        this.currentKi = this.maxKi;
+    }
+
+    // -------------------------------------------
+    // KI BASEADO NOS STATUS DO JOGADOR
+    // STR = poder de ataque
+    // DEX = velocidade e controle
+    // SPI = espírito, importante para ki máximo
+    // WILL = força mental, aumenta regen
+    // -------------------------------------------
+
+    public void updateStats(int STR, int DEX, int SPI, int WILL) {
+        int baseKi = 50;
+        int strBonus = STR * 2;
+        int spiBonus = SPI * 5;
+        int dexBonus = (int) (DEX * 1.5);
+        int willBonus = WILL * 3;
+
+        this.maxKi = (int) ((baseKi + strBonus + spiBonus + dexBonus + willBonus) * transformationMultiplier);
+
+        if (currentKi > maxKi) currentKi = maxKi;
+
+        this.regenRate = 0.5f + (WILL * 0.05f) + (SPI * 0.03f);
+        this.drainRate = 1.0f + (STR * 0.02f) + (DEX * 0.01f);
+    }
+
+    // -------------------------------------------
+    // TRANSFORMAÇÕES
+    // -------------------------------------------
+
+    public void setTransformationMultiplier(float mult) {
+        this.transformationMultiplier = mult;
+        this.maxKi = (int) (this.maxKi * mult);
+        if (currentKi > maxKi) currentKi = maxKi;
+    }
+
+    // -------------------------------------------
+    // REGENERAÇÃO DE KI
+    // -------------------------------------------
+
+    public void regenerateKi() {
+        if (isExhausted) return;
+
+        currentKi += regenRate;
+        if (currentKi > maxKi) {
+            currentKi = maxKi;
+            isOverflow = true;
+        }
+    }
+
+    // -------------------------------------------
+    // GASTAR KI
+    // -------------------------------------------
+
+    public boolean useKi(float amount) {
+        float realDrain = amount * drainRate;
+
+        if (currentKi - realDrain <= 0) {
+            currentKi = 0;
+            isExhausted = true;
+            return false; // falhou
+        }
+
+        currentKi -= realDrain;
+        return true;
+    }
+
+    // -------------------------------------------
+    // LIBERAR O ESTADO DE EXAUSTÃO
+    // -------------------------------------------
+
+    public void recoverExhaustion() {
+        if (isExhausted && currentKi > maxKi * 0.2f) {
+            isExhausted = false;
+        }
+    }
+
+    // -------------------------------------------
+    // GETTERS
+    // -------------------------------------------
+
+    public int getCurrentKi() {
+        return currentKi;
+    }
+
+    public int getMaxKi() {
+        return maxKi;
+    }
+
+    public boolean isExhausted() {
+        return isExhausted;
+    }
+
+    public boolean isOverflow() {
+        return isOverflow;
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerStaminaComponent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerStaminaComponent.java
+==============================
+package com.dragonblockinfinity.stats;
+
+public class PlayerStaminaComponent {
+
+    private int currentStamina = 0;
+    private int maxStamina = 100;
+    private boolean exhausted = false;
+
+    // multiplicadores por raça (Sayajin > Humano > Android > etc)
+    private float raceMultiplier = 1.0f;
+
+    // multiplicador de transformação
+    private float formMultiplier = 1.0f;
+
+    // regeneração base
+    private float baseRegen = 1.2f;
+
+    // exaustão
+    private int exhaustionTimer = 0;
+
+    public void updateStats(int STR, int DEX, int SPI, int WILL) {
+        // WILL aumenta stamina máxima
+        this.maxStamina = 50 + (WILL * 8) + (DEX * 4);
+
+        // Regula para não ficar menor que atual
+        if (currentStamina > maxStamina)
+            currentStamina = maxStamina;
+    }
+
+    public void setRaceMultiplier(float mult) {
+        this.raceMultiplier = mult;
+    }
+
+    public void setFormMultiplier(float mult) {
+        this.formMultiplier = mult;
+    }
+
+    public int getCurrentStamina() {
+        return currentStamina;
+    }
+
+    public int getMaxStamina() {
+        return maxStamina;
+    }
+
+    public boolean isExhausted() {
+        return exhausted;
+    }
+
+    public void consume(int amount) {
+        if (exhausted) return;
+
+        currentStamina -= amount;
+
+        if (currentStamina <= 0) {
+            currentStamina = 0;
+            exhausted = true;
+            exhaustionTimer = 80; // ~4 segundos de fadiga
+        }
+    }
+
+    public void regenerate() {
+        if (exhausted) return;
+
+        float regen = baseRegen * raceMultiplier * formMultiplier;
+
+        currentStamina += regen;
+
+        if (currentStamina > maxStamina)
+            currentStamina = maxStamina;
+    }
+
+    public void recoverExhaustion() {
+        if (!exhausted) return;
+
+        exhaustionTimer--;
+
+        if (exhaustionTimer <= 0) {
+            exhausted = false;
+            currentStamina = Math.min(currentStamina + 5, maxStamina);
+        }
+    }
+
+    // CLIENT-SIDE para HUD
+    private int clientCurrentStamina = 0;
+    private int clientMaxStamina = 0;
+    private boolean clientExhausted = false;
+
+    public void setClientValues(int current, int max, boolean exhausted) {
+        this.clientCurrentStamina = current;
+        this.clientMaxStamina = max;
+        this.clientExhausted = exhausted;
+    }
+
+    public int getClientStamina() {
+        return clientCurrentStamina;
+    }
+
+    public int getClientMaxStamina() {
+        return clientMaxStamina;
+    }
+
+    public boolean getClientExhausted() {
+        return clientExhausted;
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerEnergySync.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerEnergySync.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerEnergyProvider.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerEnergyProvider.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/stats/PlayerBattlePowerComponent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/stats/PlayerBattlePowerComponent.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/events/PlayerJoinEvent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/events/PlayerJoinEvent.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/events/PlayerTickEvent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/events/PlayerTickEvent.java
+==============================
+package com.dragonblockinfinity.events;
+
+import com.dragonblockinfinity.stats.PlayerRaceComponent;
+import com.dragonblockinfinity.stats.PlayerStatsComponent;
+import com.dragonblockinfinity.stats.PlayerStatsProvider;
+import com.dragonblockinfinity.stats.PlayerStatsSync;
+import com.dragonblockinfinity.stats.PlayerTransformationComponent;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+
+public class PlayerTickEvent {
+
+    public static void register() {
+        ServerTickEvents.END_SERVER_TICK.register(PlayerTickEvent::onServerTick);
+    }
+
+    private static void onServerTick(MinecraftServer server) {
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            try {
+                tickPlayer(player);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void tickPlayer(ServerPlayerEntity player) {
+        PlayerStatsComponent stats = PlayerStatsProvider.get(player);
+        PlayerRaceComponent race = new PlayerRaceComponent(); // fallback
+        try {
+            // If you have a race provider, replace this with correct provider.
+            // Example: PlayerRaceComponent race = PlayerRaceProvider.get(player);
+        } catch (Exception ignored) {}
+
+        if (stats == null) return;
+
+        // Basic regen values (per tick) — tuned for 20 ticks = 1 second
+        double baseKiRegen = 0.1;    // per tick baseline
+        double baseStaminaRegen = 0.5;
+        double baseHealthRegen = 0.0;
+
+        // adjust regen by race (examples)
+        // Android: no ki regen (unless Bio-Android)
+        // Majin: big health regen
+        // Bio-Android: high ki regen
+        if (race != null) {
+            switch (race.getRace()) {
+                case ANDROID -> baseKiRegen = 0.0;
+                case BIO_ANDROID -> baseKiRegen = 1.5;
+                case MAJIN -> baseHealthRegen = 0.5;
+                case SAIYAN, HYBRID_SAIYAN -> baseKiRegen = 0.2;
+                default -> {}
+            }
+        }
+
+        // Transformations drain ki/stamina: apply multipliers if active
+        PlayerTransformationComponent transform = new PlayerTransformationComponent(); // fallback
+        try {
+            // Replace with your provider if implemented
+            // transform = PlayerTransformationProvider.get(player);
+        } catch (Exception ignored) {}
+
+        if (transform != null && transform.isActive()) {
+            // drain per tick = (kiDrainPerSecond / 20)
+            // Here we use a small generic drain based on form multipliers
+            double kiDrainPerSecond = transform.getSpiritMultiplier() * 0.5; // example
+            double staminaDrainPerSecond = transform.getDexMultiplier() * 0.2;
+
+            stats.consumeKi(kiDrainPerSecond / 20.0);
+            stats.consumeStamina(staminaDrainPerSecond / 20.0);
+        }
+
+        // Regenerate
+        stats.regenTick(baseKiRegen, baseStaminaRegen, baseHealthRegen);
+
+        // If stamina is very low, apply movement penalty (to be implemented in movement handlers)
+
+        // Sync to client periodically (every server tick is heavy; sync every 10 ticks)
+        long ticks = player.server.getOverworld().getTime() % 20;
+        if (ticks % 10 == 0) {
+            PlayerStatsSync.sendToClient(stats, player);
+        }
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/events/DamageEvent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/events/DamageEvent.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/events/RaceSelectEvent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/events/RaceSelectEvent.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/events/PlayerEnergyTickEvent.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/events/PlayerEnergyTickEvent.java
+==============================
+package com.dragonblockinfinity.events;
+
+import com.dragonblockinfinity.network.BpSyncPacket;
+import com.dragonblockinfinity.network.KiSyncPacket;
+import com.dragonblockinfinity.network.StaminaSyncPacket;
+import com.dragonblockinfinity.stats.PlayerKiComponent;
+import com.dragonblockinfinity.stats.PlayerStaminaComponent;
+import com.dragonblockinfinity.stats.PlayerStatsProvider;
+
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.server.network.ServerPlayerEntity;
+
+public class PlayerEnergyTickEvent {
+
+    public static void register() {
+
+        // EVENTO QUE RODA A CADA TICK DO SERVIDOR
+        ServerTickEvents.END_PLAYER_TICK.register(player -> tick(player));
+    }
+
+    public static void tick(ServerPlayerEntity player) {
+
+        // ===============================
+        //      COMPONENTES DO PLAYER
+        // ===============================
+        PlayerKiComponent ki = PlayerStatsProvider.getKi(player);
+        PlayerStaminaComponent stamina = PlayerStatsProvider.getStamina(player);
+        var stats = PlayerStatsProvider.getStats(player);
+
+        // ========================================
+        //           ATUALIZAR STATS BASE
+        // ========================================
+        int STR = stats.getSTR();
+        int DEX = stats.getDEX();
+        int SPI = stats.getSPI();
+        int WILL = stats.getWILL();
+
+        // KI usa STR, SPI, WILL
+        ki.updateStats(STR, DEX, SPI, WILL);
+
+        // Stamina usa DEX, WILL
+        stamina.updateStats(STR, DEX, SPI, WILL);
+
+        // ========================================
+        //           KI — REGEN & EXAUSTÃO
+        // ========================================
+        ki.regenerateKi();
+        ki.recoverExhaustion();
+
+        // Sincronizar KI para o cliente
+        KiSyncPacket.send(
+                player,
+                ki.getCurrentKi(),
+                ki.getMaxKi(),
+                ki.isExhausted()
+        );
+
+        // ========================================
+        //         STAMINA — REGEN & EXAUSTÃO
+        // ========================================
+        stamina.regenerate();
+        stamina.recoverExhaustion();
+
+        // Sincronizar STAMINA
+        StaminaSyncPacket.send(
+                player,
+                stamina.getCurrentStamina(),
+                stamina.getMaxStamina(),
+                stamina.isExhausted()
+        );
+
+        // ========================================
+        //                    BP
+        // ========================================
+        int bp = stats.getBP();
+
+        BpSyncPacket.send(player, bp);
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/network/KiSyncPacket.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/network/KiSyncPacket.java
+==============================
+package com.dragonblockinfinity.network;
+
+import com.dragonblockinfinity.stats.PlayerStatsProvider;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+
+public class KiSyncPacket {
+
+    public static final Identifier ID = new Identifier("dragonblockinfinity", "ki_sync");
+
+    public static void send(ServerPlayerEntity player, int currentKi, int maxKi, boolean exhausted) {
+        PacketByteBuf buf = new PacketByteBuf(net.minecraft.network.PacketByteBufs.create());
+        buf.writeInt(currentKi);
+        buf.writeInt(maxKi);
+        buf.writeBoolean(exhausted);
+        ServerPlayNetworking.send(player, ID, buf);
+    }
+
+    public static void registerReceiver() {
+        ClientPlayNetworking.registerGlobalReceiver(ID, (client, handler, buf, responseSender) -> {
+
+            int currentKi = buf.readInt();
+            int maxKi = buf.readInt();
+            boolean exhausted = buf.readBoolean();
+
+            client.execute(() -> {
+                if (client.player != null) {
+                    PlayerStatsProvider.getClientKi().setClientValues(currentKi, maxKi, exhausted);
+                }
+            });
+        });
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/network/StaminaSyncPacket.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/network/StaminaSyncPacket.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/network/BpSyncPacket.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/network/BpSyncPacket.java
+==============================
+
+
+./src/main/java/com/dragonblockinfinity/DragonBlockInfinityClient.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/DragonBlockInfinityClient.java
+==============================
+package com.dragonblockinfinity;
+
+import com.dragonblockinfinity.hud.KiHud;
+import com.dragonblockinfinity.hud.StaminaHud;
+import com.dragonblockinfinity.hud.BpHud;
+import com.dragonblockinfinity.network.KiSyncPacket;
+import com.dragonblockinfinity.network.StaminaSyncPacket;
+import com.dragonblockinfinity.network.BpSyncPacket;
+
+import net.fabricmc.api.ClientModInitializer;
+
+public class DragonBlockInfinityClient implements ClientModInitializer {
+
+    @Override
+    public void onInitializeClient() {
+
+        // Registrar HUDs
+        KiHud.register();
+        StaminaHud.register();
+        BpHud.register();
+
+        // Registrar Recebimento de Packets
+        KiSyncPacket.registerReceiver();
+        StaminaSyncPacket.registerReceiver();
+        BpSyncPacket.registerReceiver();
+
+        // keybinding
+        MenuKeybind.register();
+
+        // botão na tela (HUD)
+        HudRenderCallback.EVENT.register(new MenuButtonOverlay());
+
+    }
+}
+
+
+./src/main/java/com/dragonblockinfinity/inputs/MenuKeybind.java
+
+==============================
+FILE: ./src/main/java/com/dragonblockinfinity/inputs/MenuKeybind.java
+==============================
+package com.dragonblockinfinity.inputs;
+
+import com.dragonblockinfinity.hud.menus.MainMenuScreen;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
+import org.lwjgl.glfw.GLFW;
+
+public class MenuKeybind {
+
+    private static KeyBinding openMenu;
+
+    public static void register() {
+
+        openMenu = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.dragonblockinfinity.open_menu",
+                GLFW.GLFW_KEY_M, // tecla M
+                "category.dragonblockinfinity.keys"
+        ));
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (openMenu.wasPressed()) {
+                MinecraftClient.getInstance().setScreen(new MainMenuScreen());
+            }
+        });
+    }
+}
+
+
+./src/main/resources/fabric.mod.json
+
+==============================
+FILE: ./src/main/resources/fabric.mod.json
+==============================
+{
+  "schemaVersion": 1,
+  "id": "dragonblockinfinity",
+  "version": "1.0.0",
+
+  "name": "Dragon Block Infinity",
+  "description": "Dragon Ball RPG mod with races, transformations, ki, stamina, BP, skills, NPCs, HUD and full saga system.",
+  "authors": [
+    "Bernardo & ChatGPT"
+  ],
+  "contact": {
+    "sources": "https://example.com/"
+  },
+
+  "license": "MIT",
+
+  "environment": "*",
+
+  "entrypoints": {
+    "main": [
+      "com.dragonblockinfinity.DragonBlockInfinity"
+    ],
+    "client": [
+      "com.dragonblockinfinity.DragonBlockInfinityClient"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.14.0",
+    "fabric": "*",
+    "minecraft": "1.20.1",
+    "java": ">=17"
+  },
+
+  "mixins": [
+    "dragonblockinfinity.mixins.json"
+  ],
+
+  "custom": {
+  }
+}
+
+
+./src/main/resources/modid.mixins.json
+
+==============================
+FILE: ./src/main/resources/modid.mixins.json
+==============================
+{
+	"required": true,
+	"package": "com.example.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ExampleMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
+
+./modsrc/src/client/java/com/example/ExampleModClient.java
+
+==============================
+FILE: ./modsrc/src/client/java/com/example/ExampleModClient.java
+==============================
+package com.example;
+
+import net.fabricmc.api.ClientModInitializer;
+
+public class ExampleModClient implements ClientModInitializer {
+	@Override
+	public void onInitializeClient() {
+		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
+	}
+}
+
+./modsrc/src/client/java/com/example/mixin/client/ExampleClientMixin.java
+
+==============================
+FILE: ./modsrc/src/client/java/com/example/mixin/client/ExampleClientMixin.java
+==============================
+package com.example.mixin.client;
+
+import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(Minecraft.class)
+public class ExampleClientMixin {
+	@Inject(at = @At("HEAD"), method = "run")
+	private void init(CallbackInfo info) {
+		// This code is injected into the start of Minecraft.run()V
+	}
+}
+
+./modsrc/src/client/resources/modid.client.mixins.json
+
+==============================
+FILE: ./modsrc/src/client/resources/modid.client.mixins.json
+==============================
+{
+	"required": true,
+	"package": "com.example.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ExampleClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
+
+./modsrc/src/main/java/com/example/ExampleMod.java
+
+==============================
+FILE: ./modsrc/src/main/java/com/example/ExampleMod.java
+==============================
+package com.example;
+
+import net.fabricmc.api.ModInitializer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ExampleMod implements ModInitializer {
+	public static final String MOD_ID = "modid";
+
+	// This logger is used to write text to the console and the log file.
+	// It is considered best practice to use your mod id as the logger's name.
+	// That way, it's clear which mod wrote info, warnings, and errors.
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+	@Override
+	public void onInitialize() {
+		// This code runs as soon as Minecraft is in a mod-load-ready state.
+		// However, some things (like resources) may still be uninitialized.
+		// Proceed with mild caution.
+
+		LOGGER.info("Hello Fabric world!");
+	}
+}
+
+./modsrc/src/main/java/com/example/mixin/ExampleMixin.java
+
+==============================
+FILE: ./modsrc/src/main/java/com/example/mixin/ExampleMixin.java
+==============================
+package com.example.mixin;
+
+import net.minecraft.server.MinecraftServer;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(MinecraftServer.class)
+public class ExampleMixin {
+	@Inject(at = @At("HEAD"), method = "loadLevel")
+	private void init(CallbackInfo info) {
+		// This code is injected into the start of MinecraftServer.loadLevel()V
+	}
+}
+
+./modsrc/src/main/resources/fabric.mod.json
+
+==============================
+FILE: ./modsrc/src/main/resources/fabric.mod.json
+==============================
+{
+	"schemaVersion": 1,
+	"id": "modid",
+	"version": "${version}",
+	"name": "Example mod",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/modid/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.example.ExampleMod"
+		],
+		"client": [
+			"com.example.ExampleModClient"
+		]
+	},
+	"mixins": [
+		"modid.mixins.json",
+		{
+			"config": "modid.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
+
+./modsrc/src/main/resources/modid.mixins.json
+
+==============================
+FILE: ./modsrc/src/main/resources/modid.mixins.json
+==============================
+{
+	"required": true,
+	"package": "com.example.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ExampleMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
+
+./estrutura_completa_com_conteudo.txt
+
+==============================
+FILE: ./estrutura_completa_com_conteudo.txt
+==============================
+
+
