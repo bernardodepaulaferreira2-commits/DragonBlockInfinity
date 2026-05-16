@@ -1,32 +1,16 @@
 package com.dragonblockinfinity.race;
 
 public interface Race {
-
-    // Nome da raça
     String getName();
+    double getBaseKi();
+    double getBaseStamina();
+    double getHealthRegen();
+    boolean hasKiRecovery();
+    boolean hasStaminaRecovery();
 
-    // Ki base da raça
-    float getBaseKi();
-
-    // Stamina base da raça
-    float getBaseStamina();
-
-    // Regeneração de Ki por tick
-    float getKiRegen();
-
-    // Regeneração de Stamina por tick
-    float getStaminaRegen();
-
-    // Multiplicador natural da raça
-    float getPowerMultiplier();
-
-    // Se a raça tem ki infinito (ex: Android, Bio-Android)
-    default boolean hasInfiniteKi() {
-        return false;
-    }
-
-    // Se a raça tem stamina infinita
-    default boolean hasInfiniteStamina() {
-        return false;
-    }
+    default float getPowerMultiplier() { return 1.0f; }
+    default float getKiRegen() { return 0.5f; }
+    default float getStaminaRegen() { return 0.5f; }
+    default boolean hasInfiniteKi() { return false; }
+    default boolean hasInfiniteStamina() { return false; }
 }

@@ -1,37 +1,51 @@
 package com.dragonblockinfinity.stats;
 
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
-import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.minecraft.entity.player.PlayerEntity;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class PlayerStatsProvider {
 
-    // Registro do componente CCA
-    public static final ComponentKey<PlayerStatsComponent> PLAYER_STATS =
-            ComponentRegistry.getOrCreate(
-                    new net.minecraft.util.Identifier("dragonblockinfinity", "player_stats"),
-                    PlayerStatsComponent.class
-            );
+    private static final Map<UUID, PlayerStatsComponent> statsMap = new HashMap<>();
+    private static final Map<UUID, PlayerKiComponent> kiMap = new HashMap<>();
+    private static final Map<UUID, PlayerStaminaComponent> staminaMap = new HashMap<>();
 
-    // Obter stats de um player
+    private static final PlayerKiComponent clientKi = new PlayerKiComponent();
+    private static final PlayerStaminaComponent clientStamina = new PlayerStaminaComponent();
+    private static final PlayerStatsComponent clientStats = new PlayerStatsComponent();
+
     public static PlayerStatsComponent get(PlayerEntity player) {
-        return PLAYER_STATS.get(player);
+        return statsMap.computeIfAbsent(player.getUuid(), id -> new PlayerStatsComponent());
     }
 
-    // Sincronização automática aos clientes
-    public static class Synced implements AutoSyncedComponent {
-        private final PlayerEntity player;
-        private final PlayerStatsComponent stats;
+    public static PlayerStatsComponent getStats(PlayerEntity player) {
+        return get(player);
+    }
 
-        public Synced(PlayerEntity player, PlayerStatsComponent stats) {
-            this.player = player;
-            this.stats = stats;
-        }
+    public static PlayerKiComponent getKi(PlayerEntity player) {
+        return kiMap.computeIfAbsent(player.getUuid(), id -> new PlayerKiComponent());
+    }
 
-        @Override
-        public void sync() {
-            PLAYER_STATS.sync(this.player);
-        }
+    public static PlayerStaminaComponent getStamina(PlayerEntity player) {
+        return staminaMap.computeIfAbsent(player.getUuid(), id -> new PlayerStaminaComponent());
+    }
+
+    public static PlayerKiComponent getClientKi() {
+        return clientKi;
+    }
+
+    public static PlayerStaminaComponent getClientStamina() {
+        return clientStamina;
+    }
+
+    public static PlayerStatsComponent getClientStats() {
+        return clientStats;
+    }
+
+    public static void remove(UUID uuid) {
+        statsMap.remove(uuid);
+        kiMap.remove(uuid);
+        staminaMap.remove(uuid);
     }
 }
