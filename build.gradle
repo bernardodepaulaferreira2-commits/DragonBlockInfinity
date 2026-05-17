@@ -13,6 +13,16 @@ base {
 repositories {
     maven { url 'https://maven.fabricmc.net/' }
     mavenCentral()
+
+    maven {
+        name = "GeckoLib"
+        url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
+    }
+
+    maven {
+        name = "Ladysnake Mods"
+        url = "https://maven.ladysnake.org/releases"
+    }
 }
 
 loom {
@@ -28,6 +38,15 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     implementation 'com.google.code.gson:gson:2.10.1'
+
+    // GeckoLib Fabric 1.20.1
+    modImplementation "software.bernie.geckolib:geckolib-fabric-1.20.1:4.4.9"
+
+    // Cardinal Components
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.2.2"
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.2.2"
+    include "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.2.2"
+    include "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.2.2"
 }
 
 processResources {

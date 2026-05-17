@@ -50,4 +50,6 @@ public class SaiyanRace implements Race {
 
         return powerLevel;
     }
+
+    
 }
