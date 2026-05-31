@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "dbi",
   "version": "${version}",
-
   "name": "Dragon Block Infinity",
   "description": "Dragon Ball RPG mod with races, transformations, ki, stamina, BP, skills, NPCs, HUD and full saga system.",
   "authors": [
@@ -10,20 +9,17 @@
   ],
   "license": "MIT",
   "environment": "*",
-
   "entrypoints": {
     "main": [
-      "com.dragonblockinfinity.DragonBlockInfinity"
+      "com.dragonblockinfinity.DragonBlockInfinityServer"
     ],
     "client": [
       "com.dragonblockinfinity.DragonBlockInfinityClient"
     ]
   },
-
   "mixins": [
     "dbi.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric-api": "*",

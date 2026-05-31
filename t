@@ -34,7 +34,7 @@ printf "Project export from %s\n\n" "$(pwd)" >> "$OUT"
 for file in "${sorted[@]}"; do
   case "$file" in
     *.png|*.PNG)
-      printf "SKIPPING PNG: %s\n" "$file" >&2
+      printf "PNG: %s\n" "$file" >> "$OUT"
       continue
       ;;
   esac
